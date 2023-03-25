@@ -532,3 +532,41 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int
+cps197()
+{
+  struct proc *p;
+  char* pstate;
+  int ppid;
+
+  // Loop over process table looking for process with pid.
+  acquire(&ptable.lock);
+
+  cprintf("name \t pid \t state \t \t ppid \n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state == UNUSED) {
+      continue;
+    }
+
+    if (p->state == RUNNING) {
+      pstate = "RUNNING";
+    }
+    else {
+      pstate = "SLEEPING";
+    }
+
+    if (p->pid == 1) {
+      ppid = 0;
+    }
+    else {
+      ppid = p->parent->pid;
+    }
+
+    cprintf("%s \t %d  \t %s \t %d \n ", p->name, p->pid, pstate, ppid);
+  }
+
+  release(&ptable.lock);
+
+  return 0;
+}
